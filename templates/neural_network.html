@@ -1,0 +1,244 @@
+<html>
+        <head>
+
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"/>
+     
+        </head>
+        <body>
+                        <div class="content">
+		<center>
+                        <h1>  <a href="../">  Constantine Larionoff <a> </h1>
+                <h2>
+                        <div id="row"> <a href="../neural_network/0"> NEURAL&nbsp;NETWORK </a>     </div>     
+
+                        <div id="row">   <a href="../cellular_automata/">    CELLULAR&nbspAUTOMATA </a> </div>     
+
+                        <div id="row">   <a href="../path_finding/">      PATH&nbsp;FINDING    </a>  </div>     
+                </h2>
+
+                              <hr>
+	
+                
+
+                <div id="b">
+                        <p>
+                        <p>
+    <center>
+                        <h3 id="b"> This is not a convolutional neural netwok. It only has dense layers. So it's not good. But it's trying its best. </h3>
+                        <p>
+
+		 <form id="MyForm" action="predict" method="POST" enctype="multipart/form-data"> 
+                         <p>
+                <canvas id="myPics" width="28" height="28" style="border: 4px solid #002fa7;">
+                        <style>
+
+canvas {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+touch-action:none;
+}
+ </style>
+
+                <script>
+
+function clearr() {
+  context.clearRect(0, 0, myPics.width, myPics.height);
+}
+
+function savee() {
+    var image = myPics.toDataURL("image/png").replace("image/png", "image/octet-stream"); 
+    window.location.href=image;
+}
+
+
+function getStuff() {
+    var image = new Image();
+    var url = document.getElementById('url');
+    image.id = "pic";
+    image.src = myPics.toDataURL();
+    url.value = image.src;
+
+}
+function ggetStuff() {
+        var canvas  = document.getElementById('myPics');
+        var url     = document.getElementById('url');
+        var dataURL = canvas.toDataURL();
+        url.value   = dataURL;
+}
+
+
+
+
+
+
+
+
+
+// Set up the canvas
+var canvas = document.getElementById("myPics");
+canvas.style.width  = "280px";
+canvas.style.height = "280px";
+
+
+
+
+
+
+canvas.addEventListener("mouseleave", function() {
+  ggetStuff();
+  submit = document.getElementById("predict");
+  submit.click();
+});
+
+
+
+
+
+var ctx = canvas.getContext("2d");
+ctx.strokeStyle = "#222222";
+ctx.lineWidth = 2;
+ctx.lineCap = "round";
+
+// Set up mouse events for drawing
+var drawing = false;
+var mousePos = { x:0, y:0 };
+var lastPos = mousePos;
+canvas.addEventListener("mousedown", function (e) {
+        drawing = true;
+  lastPos = getMousePos(canvas, e);
+}, false);
+canvas.addEventListener("mouseup", function (e) {
+  drawing = false;
+}, false);
+canvas.addEventListener("mousemove", function (e) {
+  mousePos = getMousePos(canvas, e);
+}, false);
+
+// Get the position of the mouse relative to the canvas
+function getMousePos(canvasDom, mouseEvent) {
+  var rect = canvasDom.getBoundingClientRect();
+  return {
+    x: (mouseEvent.clientX - rect.left)/10,
+    y: (mouseEvent.clientY - rect.top)/10
+  };
+}
+// Get a regular interval for drawing to the screen
+window.requestAnimFrame = (function (callback) {
+        return window.requestAnimationFrame || 
+           window.webkitRequestAnimationFrame ||
+           window.mozRequestAnimationFrame ||
+           window.oRequestAnimationFrame ||
+           window.msRequestAnimaitonFrame ||
+           function (callback) {
+        window.setTimeout(callback, 1000/60);
+           };
+})();
+
+// Draw to the canvas
+function renderCanvas() {
+  if (drawing) {
+    ctx.moveTo(lastPos.x, lastPos.y);
+    ctx.lineTo(mousePos.x, mousePos.y);
+    ctx.stroke();
+    lastPos = mousePos;
+  }
+}
+
+// Allow for animation
+(function drawLoop () {
+  requestAnimFrame(drawLoop);
+  renderCanvas();
+})();
+
+// Set up touch events for mobile, etc
+canvas.addEventListener("touchstart", function (e) {
+        mousePos = getTouchPos(canvas, e);
+  var touch = e.touches[0];
+  var mouseEvent = new MouseEvent("mousedown", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+canvas.addEventListener("touchend", function (e) {
+  var mouseEvent = new MouseEvent("mouseup", {});
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+canvas.addEventListener("touchmove", function (e) {
+  var touch = e.touches[0];
+  var mouseEvent = new MouseEvent("mousemove", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+
+// Get the position of a touch relative to the canvas
+function getTouchPos(canvasDom, touchEvent) {
+  var rect = canvasDom.getBoundingClientRect();
+  return {
+    x: (touchEvent.touches[0].clientX - rect.left)/10,
+    y: (touchEvent.touches[0].clientY - rect.top)/10
+  };
+}
+
+
+// Prevent scrolling when touching the canvas
+document.body.addEventListener("touchstart", function (e) {
+  if (e.target == canvas) {
+    e.preventDefault();
+  }
+}, false);
+document.body.addEventListener("touchend", function (e) {
+  if (e.target == canvas) {
+    e.preventDefault();
+  }
+}, false);
+document.body.addEventListener("touchmove", function (e) {
+  if (e.target == canvas) {
+    e.preventDefault();
+  }
+}, false);
+
+
+
+
+
+var element = canvas;
+document.addEventListener('touchstart', function(event) {
+    event.preventDefault();
+    var touch = event.touches[0];
+    element = document.elementFromPoint(touch.pageX,touch.pageY);
+}, false);
+
+document.addEventListener('touchmove', function(event) {
+    event.preventDefault();
+    var touch = event.touches[0];
+    if (element !== document.elementFromPoint(touch.pageX,touch.pageY)) {
+         ggetStuff();
+	 submit = document.getElementById("predict");
+         submit.click();
+    }
+}, false);
+
+</script>
+</canvas>
+<input type="hidden" id="url" name="url" value="kek">
+<p>
+<input style=" background-color: white;
+  border: 2px solid #002fa7; padding: 15px 32px; text-align: center; text-decoration: none; disnline-block; font-size: 16px;" onclick="ggetStuff();" type="submit" id="predict" value="Predict"> 
+</form>
+
+
+<div dysplay="inline" style='font-family:"Georgia"; font-weight:400; font-size:96; color:#002fa7;'>
+{{number}}
+</div>
+
+                    <p class="t"> 
+                        It nevertheless does a decent job at recognizing 0, 1, 2, 3, 4, 5. It absolutely hates number 9. If 6 and 7 are small it recognises them. Number 8 is triky but possible. The reason it sucks so much is because I made it from scratch in numpy. So it's not quite as good as some more complex models. But I'll probably add a conv layer at some point to make it better. Currently I like it the way it is: terrible but fun. 
+
+        </body>
+        </html>
+

@@ -17,7 +17,7 @@ import numpy as np
 import os
 import ast
 
-cords = ast.literal_eval(open("cords").read())
+cords = ast.literal_eval(open("cords2").read())
 
 W0 = np.load("W0.npy")
 W1 = np.load("W1.npy")
@@ -94,7 +94,7 @@ def guess():
 
 @app.route('/cellular_automata/', methods=["GET"])
 def cellular_automata(): 
-    return render_template("cellular_automata.html", cords=cords) 
+    return render_template("cellular_automata.html") 
  
 
 

@@ -17,7 +17,7 @@ import numpy as np
 import os
 import ast
 
-cords = ast.literal_eval(open("cords2").read())
+#cords = ast.literal_eval(open("cords2").read())
 
 W0 = np.load("W0.npy")
 W1 = np.load("W1.npy")
@@ -96,7 +96,10 @@ def guess():
 def cellular_automata(): 
     return render_template("cellular_automata.html") 
  
-
+@app.route('/path_finding/', methods=["GET"])
+def path_finding(): 
+    return render_template("path_finding.html") 
+ 
 
 if __name__ == '__main__':
     app.run(debug=True)

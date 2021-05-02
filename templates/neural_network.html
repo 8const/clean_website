@@ -213,31 +213,40 @@ document.addEventListener('touchstart', function(event) {
     element = document.elementFromPoint(touch.pageX,touch.pageY);
 }, false);
 
-document.addEventListener('touchmove', function(event) {
-    event.preventDefault();
-    var touch = event.touches[0];
-    if (element !== document.elementFromPoint(touch.pageX,touch.pageY)) {
-         ggetStuff();
-	 submit = document.getElementById("predict");
-         submit.click();
-    }
-}, false);
-
 </script>
 </canvas>
 <input type="hidden" id="url" name="url" value="kek">
 <p>
-<input style=" background-color: white;
-  border: 2px solid #002fa7; padding: 15px 32px; text-align: center; text-decoration: none; disnline-block; font-size: 16px;" onclick="ggetStuff();" type="submit" id="predict" value="Predict"> 
+<style>
+#predict {
+
+        color:#002fa7;
+        font-family: Helvetica;
+	font-weight: 324; 
+	font-size: 40pt;
+	background: transparent;
+        border: none;
+        margin-bottom: 16px;
+
+}
+</style>
+
+<h2> <input onclick="ggetStuff();" type="submit" id="predict" value="PREDICT"> </h2>
 </form>
 
 
-<div dysplay="inline" style='font-family:"Georgia"; font-weight:400; font-size:96; color:#002fa7;'>
-{{number}}
-</div>
+<h1> {{number}} </h1>
 
+                        <h3> Why is it so bad? </h3>
+                                
                     <p class="t"> 
-                        It nevertheless does a decent job at recognizing 0, 1, 2, 3, 4, 5. It absolutely hates number 9. If 6 and 7 are small it recognises them. Number 8 is triky but possible. The reason it sucks so much is because I made it from scratch in numpy. So it's not quite as good as some more complex models. But I'll probably add a conv layer at some point to make it better. Currently I like it the way it is: terrible but fun. 
+                   One doesn't have to be an expert in machine learning to notice how terrible this model is. I think about 30 lines of Keras/PyTorch can specify, compile and train a model that's 10x better than this one. And I could do it. But I didn't. Because anyone can do it. Very few people however are capable of creating a beast as ferociaus as the one presented above.
+                    </p>
+                    <p class="t"> This neural network is my child. I made it myself from first principles. I started with drawing it on paper and writing a forward pass, thinking about every neuron. I then wrote it using the matrix notation and verified that shapes were right. Then I spent a month working out the math of derivatives with respect to each parameter. It was by far the hardest part. I made many mistakes and started from nothing again and again. Then the shapes matched and I knew it must have been right. I procceded and wrote a mini-batch gradient desent in 10 minutes. And it worked. Buy the way it wasn't exactly this neural network. That one just classified nmbers between 0 and 1 in 2 categories based on them being > 0.5 .</p>
+                    <p class="t"> But I truly apreciated how that model doing an absolutely useless task could in a day of my rather unskilled work be tranformed and retrained into more or less working classifier for images. That was a moment of pure joy when it recognised MNIST test example[0] as 7. I got 95% accuracy on test data and was quite happy. But turns out it doesn't extrapolate particulary well to other images of slightly different nature. Such as the ones drawn here.
+                    </p> <p class="t">
+                        It nevertheless does a decent job at recognizing 0, 1, 2, 3, 4, 5. It absolutely hates number 8. If 7 and 9 are small it recognises them. There is a trick in how to draw 6 suh that it works. But I'm not telling you it. Figure it out as I did. 
+                        </p>
 
         </body>
         </html>

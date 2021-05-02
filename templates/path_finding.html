@@ -1,0 +1,809 @@
+<html>
+        <head>
+
+                <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"/>
+     
+        </head>
+        <body>
+                        <div class="content">
+		<center>
+                        <h1>  <a href="../">  Constantine Larionoff <a> </h1>
+                <h2>
+                        <div id="row"> <a href="../neural_network/Nothing"> NEURAL&nbsp;NETWORK </a>     </div>     
+
+                        <div id="row">   <a href="../cellular_automata/">    CELLULAR&nbspAUTOMATA </a> </div>     
+
+                        <div id="row">   <a href="../path_finding/">      PATH&nbsp;FINDING    </a>  </div>     
+                </h2>
+
+                              <hr>
+		
+                        <p>
+                        <p>
+                        <h3 id="b"> Shortest path with Dijkstra's algorithm. </h3>
+<p>
+
+
+<style>
+button {
+        cursor: pointer;
+
+        color:#002fa7;
+        font-family: Helvetica;
+	font-weight: 324; 
+	font-size: 20pt;
+	background: transparent;
+        border: none;
+        margin-bottom: 16px;
+
+}
+</style>
+
+
+
+
+<canvas id="canvas" width="512" height="512"> </canvas>
+
+<script>
+var _ = Infinity;
+
+function vertex(i, n) 
+{
+    return [256+100*Math.cos(i * 2*Math.PI/n), 256+100*Math.sin(i * 2*Math.PI/n)];
+}
+
+function cords(n, i, j) 
+{
+        p = [];
+        for (let k = 0; k < n+1; k++) 
+                p.push(vertex(k, n));
+        
+        return p[i+j];
+}
+        
+//takes vector v
+//returns normal normalised vector
+function perp(v) 
+{
+	if (v[0] == 0) 
+		return [1,0];
+	if (v[1] == 0) 
+		return [0,1];
+	else {
+		let q = 1 / Math.sqrt(1 + (v[0]/v[1]) * (v[0]/v[1]));
+		return [q, -q*v[0]/v[1]]
+	}
+}
+
+
+function drawLine(a, b, color) 
+{
+    const canvas = document.querySelector('#canvas');
+    const ctx = canvas.getContext('2d');
+
+
+let v = [b[0] - a[0], b[1] - a[1]];
+let q = 1 / Math.sqrt(v[0]*v[0] + v[1]*v[1]);
+v = [v[0]*q, v[1]*q];
+let end = [b[0] - 20*v[0], b[1] - 20*v[1]] 
+
+    ctx.beginPath();
+    ctx.moveTo(a[0] + v[0]*8, a[1]+ v[1]*8);
+   // ctx.lineTo(b[0]-v[0]*22, b[1]-v[1]*22);
+    ctx.lineTo(end[0], end[1]);
+ctx.strokeStyle = color;
+
+    ctx.stroke();
+
+
+ctx.beginPath();
+ctx.moveTo(end[0]+2*perp(v)[0], end[1]+2*perp(v)[1]);
+ctx.lineTo(end[0]-2*perp(v)[0], end[1]-2*perp(v)[1]);
+//ctx.moveTo(end[0]+4*perp(v)[0], end[1]+4*perp(v)[1]);
+ctx.lineTo(end[0]+12*v[0], end[1]+12*v[1]);
+ctx.moveTo(end[0]+12*v[0], end[1]+12*v[1]);
+ctx.lineTo(end[0]-2*perp(v)[0], end[1]-2*perp(v)[1]);
+
+ctx.closePath();
+ctx.fillStyle = color;
+ctx.fill();
+
+
+
+
+
+
+/*
+
+  ctx.beginPath();
+  ctx.moveTo(200,300);
+  ctx.lineTo(80,0);
+  ctx.lineTo(150,300);
+  ctx.lineTo(200,300);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle="#8ED6FF";
+  ctx.fill();
+*/
+}
+
+function d(g, n)
+{
+console.log("D");
+const context = canvas.getContext('2d');
+
+context.clearRect(0, 0, canvas.width, canvas.height);
+	for (let i = 0; i < n; i++) {
+		for (let j = 0; j < n; j++) {
+			if (g[i][j] != _)  {
+				let color = "black";
+				if (g[i][j] == 2)
+					color = "#002fa7";
+				drawLine(cords(n, i, 0), cords(n, 0, j), color);
+			}
+		}
+
+	}
+
+
+var ctx = document.getElementById('canvas').getContext('2d');
+  ctx.font = '24px serif';
+ctx.fillStyle = "black";
+
+  ctx.fillText('I', 256+110, 256);
+  ctx.fillText('V', 256-130, 256);
+ctx.fillStyle = "#002fa7";
+  ctx.fillText('VII', 256-16, 256 -120);
+  ctx.fillText('III', 256-16, 256+120);
+ctx.fillStyle = "black";
+  ctx.fillText('II', 256+70, 256+95);
+  ctx.fillText('VIII', 256+80, 256-75);
+  ctx.fillText('VI', 256-100, 256-75);
+  ctx.fillText('IV', 256-100, 256+95);
+
+
+}
+
+function shortestPath(edges, numVertices, startVertex)
+{
+        var done = new Array(numVertices);
+        done[startVertex] = true;
+        var pathLengths = new Array(numVertices);
+        var predecessors = new Array(numVertices);
+        for (var i = 0; i < numVertices; i++) {
+                pathLengths[i] = edges[startVertex][i];
+                if (edges[startVertex][i] !== _) 
+                        predecessors[i] = startVertex;
+                
+        }
+
+        pathLengths[startVertex] = 0;
+        for (var i = 0; i < numVertices - 1; i++) {
+                var closest = -1;
+                var closestDistance = _;
+                for (var j = 0; j < numVertices; j++) {
+                        if (!done[j] && pathLengths[j] < closestDistance) {
+                                closestDistance = pathLengths[j];
+                                closest = j;
+                        }
+                }
+
+                done[closest] = true;
+                for (var j = 0; j < numVertices; j++) {
+                        if (!done[j]) {
+         var possiblyCloserDistance = pathLengths[closest]; //+ edges[closest][j];
+                                //console.log(closest, j);
+                                if (closest >-1)
+possiblyCloserDistance +=  edges[closest][j];
+                                if (possiblyCloserDistance < pathLengths[j]) {
+                                        pathLengths[j] = possiblyCloserDistance;
+                                        predecessors[j] = closest;
+                                }
+                        }
+                }
+        }
+        console.log(predecessors);
+        console.log(predecessors.length);
+        return { "startVertex": startVertex,
+           "pathLengths": pathLengths,
+           "predecessors": predecessors };
+}
+        
+
+function constructPath(shortestPathInfo, endVertex) 
+{
+                                console.log("-------");
+                                console.log("construct");
+        console.log(shortestPathInfo.startVertex);
+        var path = [];
+        let fix =  0;
+        while (endVertex != shortestPathInfo.startVertex) {
+                fix++;
+                console.log("loop-");
+                if (fix > 10)
+                        return 1;
+                if (shortestPathInfo.predecessors[endVertex] !== undefined) {
+                path.unshift(endVertex);
+                endVertex = shortestPathInfo.predecessors[endVertex];
+                                }
+        }
+        console.log(path.length);
+                                console.log("-------");
+        return path;
+}
+
+let e = [[_, 1, _, 1, 1, 1, 1, 1],
+         [1, _, _, _, _, _, _, 1],
+         [_, _, _, _, _, _, _, 1],
+         [1, _, _, _, _, _, _, 1],
+         [1, _, _, _, _, _, _, 1],
+         [1, _, _, _, _, _, _, 1],
+         [1, _, _, _, _, _, _, _],
+         [1, 1, 1, 1, 1, 1, _, _]];
+
+
+//d(e, 8);
+
+function dd(e)
+{	
+        console.log("DD");
+	let n = 8;
+        let g = [[_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _]];
+
+	let co = (constructPath(shortestPath(e, 8, 6), 2));
+        if (co == 1)
+                return;
+	let node = 6;
+	for (let i = 0; i <= co.length; i ++ ) {
+		g[node][co[i]] = 1;
+		node = co[i];
+	}
+
+	d(g, n);
+}
+
+
+
+
+
+
+function graph() 
+{
+        let g = [[_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _],
+                 [_, _, _, _, _, _, _, _]];
+
+
+	for (let i = 0; i < 8; i++) {
+		for (let j = 0; j < 8; j++) {
+			let id = i.toString(10) + j.toString(10);
+			let e = document.getElementById(id);
+			let a = e.innerHTML;
+			if (a == 0 ) 
+				g[i][j] = _;
+			else
+				g[i][j] = a;
+		}
+	}	
+	return g			
+}
+
+
+function update()
+{
+d(graph(), 8);
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+function r() 
+{
+	if (Math.random() > 0.25) 
+		return 2;
+	else 
+		return getRandomInt(0, 2);
+}
+
+
+function iinit() 
+{
+	for (let i = 0; i < 8; i++) {
+		for (let j = 0; j < 8; j++) {
+			let id = i.toString(10) + j.toString(10);
+			let e = document.getElementById(id);
+			e.innerHTML = r();  
+			next(id);
+
+		}
+	}
+update();
+        console.log("IINIT");
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+<script>
+function next(id) 
+{
+	if (id[0] == id[1]) {
+		let e = document.getElementById(id);
+		e.innerHTML = 2;
+	}
+
+	let e = document.getElementById(id);
+	s = e.innerHTML;
+	switch (s) {
+	case "0":
+		e.innerHTML= "1";
+		break;
+	case "1":
+		e.innerHTML= "2";
+		break;
+	case "2" :
+		e.innerHTML= "0"
+		 break;
+	default:
+		console.log("hail kek");
+	}
+
+	s = e.innerHTML;
+	switch (s) {
+	case "0":
+		e.style.background= "white";
+		break;
+	case "1":
+		e.style.background= "black";
+		break;
+	case "2" :
+		e.style.background= "#002fa7";
+		 break;
+	default:
+		console.log("hail kek");
+	}
+	update();
+
+
+
+
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style>
+.ci {
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    padding: 4px;
+    cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+
+    background: #002fa7;
+   /* border: 2px solid #666; */
+    text-align: center;
+
+    font: 14px Helvetica, sans-serif;
+    color: white;
+  -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+     -khtml-user-select: none; 
+       -moz-user-select: none; 
+        -ms-user-select: none; 
+            user-select: none; 
+                               
+margin: auto;
+}
+
+
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+table, th, td, tr  {
+  border: none;
+  border-collapse: collapse;
+  padding: 0;
+  margin: 0;
+font-weight: normal;
+font-size:14px;
+vertical-align: middle;
+
+text-align:center;
+}
+
+td {
+padding:0;
+margin:0;
+height:28px;
+width:28px;
+text-align:center;
+align:center;
+}
+
+th {
+padding-bottom:2px;
+text-align: center;
+}
+@media all and (min-width: 1024px) {
+
+.flex {
+    display: flex;
+}
+
+.left {
+    flex: 1;
+}  
+
+.right {
+    padding-left: 64px;
+    margin-top:0;
+    padding-top:0;
+} 
+}
+@media screen and (max-width: 1024px) {
+ 
+
+.flex {
+    display: block;
+}
+
+.left {
+    flex: None;
+}  
+
+.right {
+    padding-left: 0px;
+} 
+}
+
+
+</style>
+<center>
+<button onclick="iinit();" style="margin-right: 32px">  RANDOM GRAPH </button> 
+<button onclick="dd(graph());" style="margin-left: 32px">  SHORTEST PATH </button> 
+</center>
+<h3> An interactive incidence matrix. And top to bottom shortest path.  </h3>
+
+<p>
+
+<div class="flex">
+<div class="left">
+<table width="300px"> 
+  <tr>
+    <th></th>
+    <th>I</th>
+    <th> II</th> 
+    <th>III</th>
+    <th>IV</th>
+    <th>V</th>
+    <th>VI</th>
+    <th>VII</th>
+    <th>VIII</th>
+  </tr>
+
+  <tr>
+    <td style="text-align:right; padding-right:8px;">I</td>
+    <td>
+<div class="ci" id="00" onclick="next('00');">1</div>
+</td>
+    <td>
+<div class="ci" id="01" onclick="next('01');">1</div>
+</td>
+    <td>
+<div class="ci" id="02" onclick="next('02');">1</div>
+</td>
+    <td>
+<div class="ci" id="03" onclick="next('03');">1</div>
+</td>
+    <td>
+<div class="ci" id="04" onclick="next('04');">1</div>
+</td>
+    <td>
+<div class="ci" id="05" onclick="next('05');">1</div>
+</td>
+    <td>
+<div class="ci" id="06" onclick="next('06');">1</div>
+</td>
+    <td>
+<div class="ci" id="07" onclick="next('07');">1</div>
+</td>
+  </tr>
+
+
+
+
+  <tr>
+    <td style="text-align:right; padding-right:8px;">II</td>
+    <td>
+<div class="ci" id="10" onclick="next('10');">1</div>
+</td>
+    <td>
+<div class="ci" id="11" onclick="next('11');">1</div>
+</td>
+    <td>
+<div class="ci" id="12" onclick="next('12');">1</div>
+</td>
+    <td>
+<div class="ci" id="13" onclick="next('13');">1</div>
+</td>
+    <td>
+<div class="ci" id="14" onclick="next('14');">1</div>
+</td>
+    <td>
+<div class="ci" id="15" onclick="next('15');">1</div>
+</td>
+    <td>
+<div class="ci" id="16" onclick="next('16');">1</div>
+</td>
+    <td>
+<div class="ci" id="17" onclick="next('17');">1</div>
+</td>
+  </tr>
+
+
+
+
+
+
+ <tr>
+    <td style="text-align:right; padding-right:8px;">III</td>
+    <td>
+<div class="ci" id="20" onclick="next('20');">1</div>
+</td>
+    <td>
+<div class="ci" id="21" onclick="next('21');">1</div>
+</td>
+    <td>
+<div class="ci" id="22" onclick="next('22');">1</div>
+</td>
+    <td>
+<div class="ci" id="23" onclick="next('23');">1</div>
+</td>
+    <td>
+<div class="ci" id="24" onclick="next('24');">1</div>
+</td>
+    <td>
+<div class="ci" id="25" onclick="next('25');">1</div>
+</td>
+    <td>
+<div class="ci" id="26" onclick="next('26');">1</div>
+</td>
+    <td>
+<div class="ci" id="27" onclick="next('27');">1</div>
+</td>
+  </tr>
+
+
+    <td style="text-align:right; padding-right:8px;">IV</td>
+    <td>
+<div class="ci" id="30" onclick="next('30');">1</div>
+</td>
+    <td>
+<div class="ci" id="31" onclick="next('31');">1</div>
+</td>
+    <td>
+<div class="ci" id="32" onclick="next('32');">1</div>
+</td>
+    <td>
+<div class="ci" id="33" onclick="next('33');">1</div>
+</td>
+    <td>
+<div class="ci" id="34" onclick="next('34');">1</div>
+</td>
+    <td>
+<div class="ci" id="35" onclick="next('35');">1</div>
+</td>
+    <td>
+<div class="ci" id="36" onclick="next('36');">1</div>
+</td>
+    <td>
+<div class="ci" id="37" onclick="next('37');">1</div>
+</td>
+  </tr>
+
+
+
+
+  <tr>
+    <td style="text-align:right; padding-right:8px;">V</td>
+    <td>
+<div class="ci" id="40" onclick="next('40');">1</div>
+</td>
+    <td>
+<div class="ci" id="41" onclick="next('41');">1</div>
+</td>
+    <td>
+<div class="ci" id="42" onclick="next('42');">1</div>
+</td>
+    <td>
+<div class="ci" id="43" onclick="next('43');">1</div>
+</td>
+    <td>
+<div class="ci" id="44" onclick="next('44');">1</div>
+</td>
+    <td>
+<div class="ci" id="45" onclick="next('45');">1</div>
+</td>
+    <td>
+<div class="ci" id="46" onclick="next('46');">1</div>
+</td>
+    <td>
+<div class="ci" id="47" onclick="next('47');">1</div>
+</td>
+  </tr>
+
+
+
+
+
+
+ <tr>
+    <td style="text-align:right; padding-right:8px;">VI</td>
+    <td>
+<div class="ci" id="50" onclick="next('50');">1</div>
+</td>
+    <td>
+<div class="ci" id="51" onclick="next('51');">1</div>
+</td>
+    <td>
+<div class="ci" id="52" onclick="next('52');">1</div>
+</td>
+    <td>
+<div class="ci" id="53" onclick="next('53');">1</div>
+</td>
+    <td>
+<div class="ci" id="54" onclick="next('54');">1</div>
+</td>
+    <td>
+<div class="ci" id="55" onclick="next('55');">1</div>
+</td>
+    <td>
+<div class="ci" id="56" onclick="next('56');">1</div>
+</td>
+    <td>
+<div class="ci" id="57" onclick="next('57');">1</div>
+</td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td style="text-align:right; padding-right:8px;">VII</td>
+    <td>
+<div class="ci" id="60" onclick="next('60');">1</div>
+</td>
+    <td>
+<div class="ci" id="61" onclick="next('61');">1</div>
+</td>
+    <td>
+<div class="ci" id="62" onclick="next('62');">1</div>
+</td>
+    <td>
+<div class="ci" id="63" onclick="next('63');">1</div>
+</td>
+    <td>
+<div class="ci" id="64" onclick="next('64');">1</div>
+</td>
+    <td>
+<div class="ci" id="65" onclick="next('65');">1</div>
+</td>
+    <td>
+<div class="ci" id="66" onclick="next('66');">1</div>
+</td>
+    <td>
+<div class="ci" id="67" onclick="next('67');">1</div>
+</td>
+  </tr>
+
+
+
+
+
+
+ <tr>
+    <td style="text-align:right; padding-right:8px;">VIII</td>
+    <td>
+<div class="ci" id="70" onclick="next('70');">1</div>
+</td>
+    <td>
+<div class="ci" id="71" onclick="next('71');">1</div>
+</td>
+    <td>
+<div class="ci" id="72" onclick="next('72');">1</div>
+</td>
+    <td>
+<div class="ci" id="73" onclick="next('73');">1</div>
+</td>
+    <td>
+<div class="ci" id="74" onclick="next('74');">1</div>
+</td>
+    <td>
+<div class="ci" id="75" onclick="next('75');">1</div>
+</td>
+    <td>
+<div class="ci" id="76" onclick="next('76');">1</div>
+</td>
+    <td>
+<div class="ci" id="77" onclick="next('77');">1</div>
+</td>
+    <td>
+<script>
+
+iinit();
+</script>
+
+
+
+
+</table>
+
+
+
+
+</div>
+<div class="right">
+<p class="t right">
+I belive it's a great introduction to the concept of directed graphs and their matrix representation. If you want a to modify the directed edge from vertex V to vertex I, go down 5 steps and 1 step to the right and click it. Having an edge from V to V itself makes little sense so the diagonal is always 0. One more nice thing to notice is the symmetry. Edge from V to I is 5 right 1 down. Exactly on the opposite side of the inactive diagonal. This graph is also weighted. Each edge has a cost you pay for travelling it. It can represent a travelling expense or latency in different internet cables. Such graphs are used for modeling all sorts of things. If it has some notion of connectedness, direction, and curtain connections are better, chances are weighted directed graph might be very useful to model it.
+</p> 
+
+
+</div>
+</div>
+
+
+
+<p>
+</center>
+</div>
+</body>
+</html>
+
